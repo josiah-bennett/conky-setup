@@ -119,7 +119,7 @@ function draw_precipitation_data(cr, x, y, data)
 		itype = string.lower(types[i])
 		type_str = (data[itype] and types[i]..':' or type_str)
 		last_hour = (data[itype] and data[itype]['1h']..'mm' or last_hour)
-		last_3hour = (data[itype] and data[itype]['3h']..'mm' or last_3hour)
+		last_3hour = (data[itype] and (data[itype]['3h'] and data[itype]['3h']..'mm' or '') or last_3hour)
 	end
 	
 	draw_left_text(cr, x - 10, y, type_str, Styles.KEYWORDS)

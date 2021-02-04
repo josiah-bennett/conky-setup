@@ -15,6 +15,8 @@ dofile(PATH .. '/process.lua')
 dofile(PATH .. '/weather/weather.lua')
 dofile(PATH .. '/weather/update_weather.lua')
 dofile(PATH .. '/weather/weather_compass.lua')
+-- this next line is also not really needed
+dofile(PATH .. '/private.lua')
 
 function conky_main ()
 	-- check if the conky window is implemented
@@ -55,7 +57,10 @@ function conky_main ()
 	draw_process_list(cairo, grid_centers[i].x, grid_centers[i].y - 60, 'top_mem', conf_options)
 	
 	i = 6;
-	update_current_weather('city-ID', 'API-Key')
+	-- uncomment next line and insert your City ID and API Key
+	-- update_current_weather('city-ID', 'API-Key')
+	-- You can delete this line for your conky setup
+	private_data()
 	draw_weather_data(cairo, grid_centers[i].x, grid_centers[i].y, false)
 	
 	-- print(grid_centers[i].x)
