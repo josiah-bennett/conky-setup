@@ -194,7 +194,7 @@ function draw_network_info (cr, x, y)
 		address = conky_parse('${addr ' .. route .. '}')
 	elseif string.find(read_file('/proc/net/route'), 'eth0') ~= nil then
 		route = 'eth0'
-		address = conky_parse('§{addr ' .. route .. '}')
+		address = conky_parse('${addr ' .. route .. '}')
 	else
 		route = ''; address = ''
 		status = 'disconnected'
