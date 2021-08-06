@@ -3,10 +3,11 @@
 	-- other font : 'SF Digital Readout', CAIRO_FONT_WEIGHT_MEDIUM
 Styles = {
 	
-	HEADER = {font_size=32, color=Colors.nord14},
-	KEYWORDS = {font_size=32, color=Colors.nord0},
-	TIME = {font='Ticking Timebomb BB', font_weight=CAIRO_FONT_WEIGHT_MEDIUM, font_size=140},
-	DEFAULT = {font='Monospace', font_weight=CAIRO_FONT_WEIGHT_NORMAL, font_size=28, color=Colors.nord4}
+	HEADER = {font_size=16, color=Colors.nord14},
+	KEYWORDS = {font_size=16, color=Colors.nord0},
+	TIME = {font='Ticking Timebomb BB', font_weight=CAIRO_FONT_WEIGHT_MEDIUM, font_size=70},
+	TIME_SMALL = {font='Ticking Timebomb BB', font_weight=CAIRO_FONT_WEIGHT_MEDIUM, font_size=20},
+	DEFAULT = {font='Monospace', font_weight=CAIRO_FONT_WEIGHT_NORMAL, font_size=14, color=Colors.nord4}
 	
 }
 

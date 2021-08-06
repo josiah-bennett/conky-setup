@@ -16,39 +16,18 @@ end
 function draw_hexagon(cr, x, y, radius, color)
 	cairo_set_line_width(cr, 1)
 	-- draw outline
+	dash_length = radius / 14
 	create_hexagon_path(cr, x, y, radius)
-	cairo_set_dash(cr, {10, 10}, 2, 5)
+	cairo_set_dash(cr, {dash_length, dash_length}, 2, dash_length/2)
 	cairo_set_source_rgba(cr, 0, 0, 0, 1)
 	cairo_stroke(cr)
 	-- fill shape
 	create_hexagon_path(cr, x, y, radius - 5)
-	cairo_set_dash(cr, {10, 10, 10, 10}, 4, 5) -- ???
+	cairo_set_dash(cr, {dash_length, dash_length, dash_length, dash_length}, 4, dash_length/2)
 	cairo_set_source_rgba(cr, color[1], color[2], color[3], 0.25)
 	cairo_fill(cr)
 
 	cairo_set_dash(cr, {}, 0, 0)
-end
-
-function draw_hex_grid(cr, radius, bg_color)
-	grid_centers = {}
-	y_distance = math.sqrt(3) * radius
-
-	i = 1
-	for x_i=1,4,1.5 do
-		start_index = x_i - math.floor(x_i)
-		stop_index = start_index + math.floor(x_i / 3) + 2
-		
-		for y_i=start_index,stop_index do
-			-- Calculate center Coords
-			x, y = 20 + x_i * radius, y_i * y_distance
-			center = {x=x, y=y}
-			
-			draw_hexagon(cairo, x, y, radius, bg_color)
-			grid_centers[i] = center
-			i = i + 1
-		end
-	end
-	return grid_centers
 end
 
 function draw_indicator(cr, x, y, radius, color, cw, percentage, start, stop)

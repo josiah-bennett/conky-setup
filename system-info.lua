@@ -1,7 +1,7 @@
 -- [[Lua Script for the Systeminfo]]
 require 'io'
 
-function draw_system_info (cr, x, y)
+function draw_system_info (cr, x, y, vertical)
 	name = conky_parse('${execi 86400 whoami}') .. '@' .. conky_parse('$nodename')
 
 	kernel = conky_parse('$kernel')
@@ -24,13 +24,22 @@ function draw_system_info (cr, x, y)
 	desktop_left = {text=desktop_name, color=Colors.nord4}
 	desktop_right = {text=desktop, color=Colors.nord4}
 
-	draw_centered_text(cr, x, y + 22, name, Styles.HEADER)
-	aligned_text(cr, x - 50, y + 54, kernel_left, kernel_right, ':')
-	aligned_text(cr, x - 50, y + 86, system_left, system_right, ':')
-	aligned_text(cr, x - 50, y + 135, uptime_left, uptime_right, ':')
-	aligned_text(cr, x + 70, y + 175, desktop_left, desktop_right, ':')
+	if vertical == V_Alignment.top then
+		i = 1
+	elseif vertical == V_Alignment.bottom then
+		i = -1
+	else
+		i = 0
+	end
+	
+	draw_centered_text(cr, x, y + i * 15/140*RADIUS, name, Styles.HEADER)
+	aligned_text(cr, x - 5/28*RADIUS, y + i * 32/140*RADIUS, kernel_left, kernel_right, ':')
+	aligned_text(cr, x - 5/28*RADIUS, y + i * 48/140*RADIUS, system_left, system_right, ':')
+	aligned_text(cr, x - 5/28*RADIUS, y + i * 27/56*RADIUS, uptime_left, uptime_right, ':')
+	aligned_text(cr, x + 7/28*RADIUS, y + i * 35/56*RADIUS, desktop_left, desktop_right, ':')
 end
 
+-- check the special Characters
 function draw_battery_info (cr, x, y)
 	percentage = conky_parse('$battery_percent')
 
@@ -46,13 +55,13 @@ function draw_battery_info (cr, x, y)
 	else color = Colors.nord14
 	end
 	
-	radius = 50
+	radius = 5/28 * RADIUS
 	
 	draw_hex_indicator(cr, x, y, radius, {color}, {percentage})
 	
-	draw_centered_text(cr, x + 100, y - 55, 'Battery', Styles.KEYWORDS)
-	draw_left_text(cr, x + radius + 10, y - 20, time)
-	draw_left_text(cr, x + radius + 10, y + 20, status)
+	draw_centered_text(cr, x + 5/14*RADIUS, y - 11/56*RADIUS, 'Battery', Styles.KEYWORDS)
+	draw_left_text(cr, x + radius + 1/28*RADIUS, y - 1/14*RADIUS, time)
+	draw_left_text(cr, x + radius + 1/28*RADIUS, y + 1/14*RADIUS, status)
 end
 
 function draw_ram_info (cr, x, y)
@@ -83,7 +92,7 @@ function draw_ram_info (cr, x, y)
 	memory_percent_free = memory_free_num / memory_max_num * 100
 	memory_percent_easy = memory_easy_num / memory_max_num * 100
 	
-	radius = 50
+	radius = 5/28 * RADIUS
 	
 	percentage_list = {memory_percent, memory_percent_easy, memory_percent_free}
 	color_list = {Colors.nord11, Colors.nord13, Colors.nord14}
@@ -92,10 +101,10 @@ function draw_ram_info (cr, x, y)
 		draw_hex_indicator(cr, x, y, radius, color_list, percentage_list)
 	end
 	
-	draw_centered_text(cr, x - 75, y - 60, 'RAM', Styles.KEYWORDS)
-	draw_right_text(cr, x - radius - 10, y - 28, 'Free : ' .. memory_free)
-	draw_right_text(cr, x - radius - 10, y, 'Easy : ' .. memory_easy_str)
-	draw_right_text(cr, x - radius - 10, y + 28, 'Used : ' .. memory)
+	draw_centered_text(cr, x - 15/56*RADIUS, y - 6/28*RADIUS, 'RAM', Styles.KEYWORDS)
+	draw_right_text(cr, x - radius - 1/14*RADIUS, y - 1/10*RADIUS, 'Free : ' .. memory_free)
+	draw_right_text(cr, x - radius - 1/14*RADIUS, y, 'Easy : ' .. memory_easy_str)
+	draw_right_text(cr, x - radius - 1/14*RADIUS, y + 1/10*RADIUS, 'Used : ' .. memory)
 	draw_centered_text(cr, x, y, memory_max)
 end
 
@@ -114,8 +123,8 @@ function memory_to_number (memory_string, memory_size)
 end
 
 function draw_cpu_info (cr, x, y)
-	radius_s = 25
-	radius = 50
+	radius_s = 5/56 * RADIUS
+	radius = 5/28 * RADIUS
 	
 	cpu = conky_parse('${cpu cpu0}')
 	
@@ -129,13 +138,13 @@ function draw_cpu_info (cr, x, y)
 	
 	ind_color = Colors.nord14
 	
-	draw_centered_text(cr, x - 80, y - 65, 'CPU', Styles.KEYWORDS)
+	draw_centered_text(cr, x - 2/14*RADIUS, y - 13/56*RADIUS, 'CPU', Styles.KEYWORDS)
 	
-	draw_centered_text(cr, x - 150, y - 20, cpu .. '%')
-	draw_hex_indicator(cr, x - 150, y - 20, radius, {ind_color}, {cpu})
+	draw_centered_text(cr, x - 15/28*RADIUS, y - 1/14*RADIUS, cpu .. '%')
+	draw_hex_indicator(cr, x - 15/28*RADIUS, y - 1/14*RADIUS, radius, {ind_color}, {cpu})
 	
 	temperature = string.gsub(conky_parse('${execi 10 sensors | grep \'Core 0\' | awk {\'print $3\'}}'), '+', '')
-	aligned_text(cr, x + 25, y - 30, {text='Temp.'}, {text=temperature}, ':')
+	aligned_text(cr, x + 5/56*RADIUS, y - 3/28*RADIUS, {text='Temp.'}, {text=temperature}, ':')
 	
 	freq_avg = 0
 	for i=1, core_count do
@@ -143,40 +152,39 @@ function draw_cpu_info (cr, x, y)
 		freq_avg = freq_avg + tonumber(frequency)
 	end
 	freq_avg = math.ceil(freq_avg / core_count)
-	aligned_text(cr, x + 25, y, {text='Freq.'}, {text=freq_avg .. 'MHz'}, ':')
+	aligned_text(cr, x + 5/56*RADIUS, y, {text='Freq.'}, {text=freq_avg .. 'MHz'}, ':')
 	
-	draw_right_text(cr, x - 110 + 30, y + 50, 'Cores:')
+	draw_right_text(cr, x - 2/7*RADIUS, y + 5/28*RADIUS, 'Cores:')
 	row_n = 4
 	for i=1, row_n do
-		xi = x - 110 + (i * 60)
-		draw_hex_indicator(cr, xi, y + 50, radius_s, {ind_color}, {cpu_cores[i]})
-		draw_centered_text(cr, xi, y + 50, i, nil, {font_size=20})
+		xi = x - 11/28*RADIUS + (i * 3/14*RADIUS)
+		draw_hex_indicator(cr, xi, y + 5/28*RADIUS, radius_s, {ind_color}, {cpu_cores[i]})
+		draw_centered_text(cr, xi, y + 5/28*RADIUS, i, nil, {font_size=10})
 		xi = xi - radius_s
-		draw_hex_indicator(cr, xi, y + 100, radius_s, {ind_color}, {cpu_cores[i+row_n]})
-		draw_centered_text(cr, xi, y + 100, i + row_n, nil, {font_size=20})
+		draw_hex_indicator(cr, xi, y + 5/14*RADIUS, radius_s, {ind_color}, {cpu_cores[i+row_n]})
+		draw_centered_text(cr, xi, y + 5/14*RADIUS, i + row_n, nil, {font_size=10})
 	end
-	
 end
 
 function draw_storage_info (cr, x, y)
 	ind_color = Colors.nord14
-	radius = 50
+	radius = 5/28 * RADIUS
 	
 	--diskio = conky_parse('$diskio')
 	diskio_read = conky_parse('${diskio_read /dev/nvme0n1p3}')
 	diskio_write = conky_parse('${diskio_write /dev/nvme0n1p3}')
 	
-	draw_left_text(cr, x + 75, y + 20, diskio_read)
-	draw_left_text(cr, x + 75, y + 50, diskio_write)
+	draw_left_text(cr, x + 15/56*RADIUS, y + 1/14*RADIUS, diskio_read)
+	draw_left_text(cr, x + 15/56*RADIUS, y + 5/28*RADIUS, diskio_write)
 	
 	main_fs_used = string.gsub(conky_parse('${fs_used /}'), 'iB', '')
 	main_fs_perc = tonumber(conky_parse('${fs_used_perc /}'))
 	main_fs_size = string.gsub(conky_parse('${fs_size /}'), 'iB', '')
 	
-	draw_centered_text(cr, x + 100, y - radius, 'Storage', Styles.KEYWORDS)
+	draw_centered_text(cr, x + 10/28*RADIUS, y - radius, 'Storage', Styles.KEYWORDS)
 	
 	draw_hex_indicator(cr, x, y, radius, {ind_color}, {main_fs_perc})
-	draw_left_text(cr, x + radius + 10, y - 15, main_fs_used .. '/' .. main_fs_size)
+	draw_left_text(cr, x + radius + 1/28*RADIUS, y - 3/56*RADIUS, main_fs_used .. '/' .. main_fs_size)
 	
 end
 
@@ -200,7 +208,35 @@ function draw_network_info (cr, x, y)
 		status = 'disconnected'
 		status_color = Colors.nord11
 	end
+	address = '0.0.0.0'
 	
+	internet = 'TRUE'
+	--internet = check_connection(status)
+	
+	downspeed = conky_parse('${downspeed ' .. route .. '}')
+	total_down = conky_parse('${totaldown ' .. route .. '}')
+	text_down = downspeed .. '/' .. total_down
+	
+	upspeed = conky_parse('${upspeed ' .. route .. '}')
+	total_up = conky_parse('${totalup ' .. route .. '}')
+	text_up = upspeed .. '/' .. total_up
+	
+	draw_centered_text(cr, x, y - 13/56*RADIUS, 'Network', Styles.KEYWORDS)
+	
+	aligned_text(cr, x - 15/56*RADIUS, y - 3/28*RADIUS, {text='ip', style=Styles.KEYWORDS}, {text=address}, ':')
+	aligned_text(cr, x - 15/56*RADIUS, y, {text='down ↓', style=Styles.KEYWORDS}, {text=text_down}, ':')
+	aligned_text(cr, x - 15/56*RADIUS, y + 3/28*RADIUS, {text='up ↑', style=Styles.KEYWORDS}, {text=text_up}, ':')
+	aligned_text(cr, x - 15/56*RADIUS, y + 13/56*RADIUS, {text='status', style=Styles.KEYWORDS}, {text=status, color=status_color}, ':')
+	draw_left_text(cr, x - 13/56*RADIUS, y + 19/56*RADIUS, internet, nil, {color=access_color})
+	
+	-- somehow get an image to display different for Wlan and Ethernet use
+	-- path for both is : /usr/share/icons/Zafiro-icons/panel/22/nm-signal-100.svg
+	--              and : /usr/share/icons/Zafiro-icons/panel/22/network-transmit-receive.svg
+	-- image = conky_parse('${image /usr/share/icons/Zafiro-icons/panel/16/nm-signal-100.svg -p ' .. x .. ',' .. y .. ' -s 16x16}')
+end
+
+-- run this function in its own thread !!!
+function check_connection(status)
 	internet = 'No Internet'
 	access_color = Colors.nord11
 	if status == 'connected' then
@@ -216,27 +252,7 @@ function draw_network_info (cr, x, y)
 			end
 		end
 	end
-	
-	downspeed = conky_parse('${downspeed ' .. route .. '}')
-	total_down = conky_parse('${totaldown ' .. route .. '}')
-	text_down = downspeed .. '/' .. total_down
-	
-	upspeed = conky_parse('${upspeed ' .. route .. '}')
-	total_up = conky_parse('${totalup ' .. route .. '}')
-	text_up = upspeed .. '/' .. total_up
-	
-	draw_centered_text(cr, x, y - 65, 'Network', Styles.KEYWORDS)
-	
-	aligned_text(cr, x - 75, y - 30, {text='ip', style=Styles.KEYWORDS}, {text=address}, ':')
-	aligned_text(cr, x - 75, y, {text='down ↓', style=Styles.KEYWORDS}, {text=text_down}, ':')
-	aligned_text(cr, x - 75, y + 30, {text='up ↑', style=Styles.KEYWORDS}, {text=text_up}, ':')
-	aligned_text(cr, x - 75, y + 65, {text='status', style=Styles.KEYWORDS}, {text=status, color=status_color}, ':')
-	draw_left_text(cr, x - 65, y + 95, internet, nil, {color=access_color})
-	
-	-- somehow get an image to display different for Wlan and Ethernet use
-	-- path for both is : /usr/share/icons/Zafiro-icons/panel/22/nm-signal-100.svg
-	--              and : /usr/share/icons/Zafiro-icons/panel/22/network-transmit-receive.svg
-	-- image = conky_parse('${image /usr/share/icons/Zafiro-icons/panel/16/nm-signal-100.svg -p ' .. x .. ',' .. y .. ' -s 16x16}')
+	return internet
 end
 
 open = io.open
